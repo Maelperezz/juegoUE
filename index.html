@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Escape por Europa</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0b1f5e, #133ea8);
+      color: white;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    .screen {
+      display: none;
+      min-height: 100vh;
+      padding: 40px;
+      animation: fade 0.5s ease;
+    }
+
+    .active {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    @keyframes fade {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h1 {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      color: #ffd700;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #ffd700;
+    }
+
+    p {
+      max-width: 800px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 15px 30px;
+      margin: 10px;
+      border: none;
+      border-radius: 12px;
+      background: #ffd700;
+      color: #0b1f5e;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      background: white;
+    }
+
+    .map {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 1200px;
+      margin-top: 30px;
+    }
+
+    .country {
+      background: rgba(255,255,255,0.1);
+      padding: 20px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      transition: 0.3s;
+      border: 2px solid rgba(255,255,255,0.2);
+    }
+
+    .country:hover {
+      transform: translateY(-5px);
+      border-color: #ffd700;
+    }
+
+    .country img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-bottom: 15px;
+    }
+
+    .hud {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      display: flex;
+      gap: 15px;
+      background: rgba(0,0,0,0.3);
+      padding: 12px 20px;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      z-index: 999;
+    }
+
+    .quiz-box {
+      background: rgba(255,255,255,0.1);
+      padding: 30px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 700px;
+      backdrop-filter: blur(10px);
+    }
+
+    .answers {
+      display: grid;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .correct {
+      background: #32cd32 !important;
+      color: white !important;
+      border: 2px solid white;
+    }
+
+    .wrong {
+      background: #ff4d4d !important;
+      color: white !important;
+      border: 2px solid white;
+    }
+
+    .penalty-box {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 12px;
+      background: rgba(255, 0, 0, 0.2);
+      border: 2px solid rgba(255,255,255,0.2);
+    }
+
+    .question-counter {
+      margin-bottom: 15px;
+      color: #ffd700;
+      font-weight: bold;
+    }
+
+    .answers {
+      display: grid;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .progress-container {
+      width: 80%;
+      max-width: 600px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 20px;
+      overflow: hidden;
+      margin: 20px 0;
+    }
+
+    .progress {
+      height: 25px;
+      width: 0%;
+      background: #ffd700;
+      transition: 0.5s;
+    }
+
+    .passport {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .piece {
+      width: 50px;
+      height: 50px;
+      background: gold;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: black;
+      font-weight: bold;
+    }
+
+    .travel-options {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .travel-card {
+      background: rgba(255,255,255,0.1);
+      padding: 20px;
+      border-radius: 15px;
+      width: 200px;
+    }
+
+    .victory {
+      font-size: 5rem;
+      color: gold;
+      margin-bottom: 20px;
+      animation: glow 1s infinite alternate;
+    }
+
+    @keyframes glow {
+      from {
+        text-shadow: 0 0 10px gold;
+      }
+      to {
+        text-shadow: 0 0 30px gold;
+      }
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+
+    .modal-content {
+      background: #102d7a;
+      padding: 35px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 600px;
+      text-align: center;
+      box-shadow: 0 0 30px rgba(0,0,0,0.5);
+      border: 2px solid rgba(255,255,255,0.2);
+    }
+
+    .success-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2500;
+    }
+
+    .success-content {
+      background: #12358f;
+      padding: 35px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 550px;
+      text-align: center;
+      border: 2px solid rgba(255,255,255,0.2);
+      box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    }
+
+    .success-content h2 {
+      color: #ffd700;
+      margin-bottom: 20px;
+    }
+
+    .modal-content h2 {
+      margin-bottom: 20px;
+    }
+
+    .timer {
+      font-size: 1.3rem;
+      margin-top: 15px;
+      color: #ffd700;
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2.5rem;
+      }
+
+      .hud {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="hud">
+  <div>💰 Dinero: <span id="money">50</span></div>
+  <div>🧩 Pasaporte: <span id="pieces">0</span>/5</div>
+  <div>🌍 Países: <span id="visited">0</span>/5</div>
+</div>
+
+<!-- PANTALLA INICIO -->
+<section id="home" class="screen active">
+  <h1>Escape por Europa</h1>
+  <p>
+    Viaja por Europa durante el Día de Europa y recupera las piezas de tu pasaporte perdido.
+    Explora países, resuelve retos y consigue llegar a Bruselas.
+  </p>
+
+  <button onclick="showScreen('intro')">Jugar</button>
+  <button onclick="showInstructions()">Instrucciones</button>
+</section>
+
+<div class="modal" id="instructionsModal">
+  <div class="modal-content">
+    <h2>📜 Instrucciones</h2>
+
+    <p>
+      Viaja por distintos países europeos y responde preguntas para conseguir piezas de tu pasaporte.
+    </p>
+
+    <p>
+      ✅ Cada país completado te dará:
+      <br>
+      • 1 pieza del pasaporte
+      <br>
+      • 30 monedas
+    </p>
+
+    <p>
+      ❌ Si fallas una pregunta:
+      <br>
+      • perderás 15 monedas
+      <br>
+      • volverás al mapa
+    </p>
+
+    <p>
+      💀 Si llegas a 0 monedas perderás la partida.
+    </p>
+
+    <button onclick="closeInstructions()">Cerrar</button>
+  </div>
+</div>
+
+<!-- INTRO -->
+<section id="intro" class="screen">
+  <h2>Historia</h2>
+  <p>
+    Durante la celebración del Día de Europa, has perdido tu pasaporte mientras viajabas.
+    Para recuperarlo deberás recorrer distintos países europeos, superar pruebas culturales
+    y reunir las piezas perdidas antes de llegar a Bruselas.
+  </p>
+
+  <div class="progress-container">
+    <div class="progress" id="progressBar"></div>
+  </div>
+
+  <button onclick="showScreen('map')">Comenzar aventura</button>
+</section>
+
+<!-- MAPA -->
+<section id="map" class="screen">
+  <h2>Mapa Europeo</h2>
+  <p>Selecciona un país para viajar y resolver un desafío.</p>
+
+  
+
+  <div class="map">
+
+    <div class="country">
+      <img src="https://images.unsplash.com/photo-1431274172761-fca41d930114?q=80&w=1200&auto=format&fit=crop" alt="Francia">
+      <h3>Francia</h3>
+      <button onclick="startQuiz('france')">Viajar</button>
+    </div>
+
+    <div class="country">
+      <img src="https://images.unsplash.com/photo-1525874684015-58379d421a52?q=80&w=1200&auto=format&fit=crop" alt="Italia">
+      <h3>Italia</h3>
+      <button onclick="startQuiz('italy')">Viajar</button>
+    </div>
+
+    <div class="country">
+      <img src="https://images.unsplash.com/photo-1467269204594-9661b134dd2b?q=80&w=1200&auto=format&fit=crop" alt="Alemania">
+      <h3>Alemania</h3>
+      <button onclick="startQuiz('germany')">Viajar</button>
+    </div>
+
+    <div class="country">
+      <img src="https://images.unsplash.com/photo-1543783207-ec64e4d95325?q=80&w=1200&auto=format&fit=crop" alt="España">
+      <h3>España</h3>
+      <button onclick="startQuiz('spain')">Viajar</button>
+    </div>
+
+    <div class="country">
+      <img src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?q=80&w=1200&auto=format&fit=crop" alt="Bélgica">
+      <h3>Bélgica</h3>
+      <button onclick="startQuiz('belgium')">Viajar</button>
+    </div>
+
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section id="quiz" class="screen">
+  <div class="quiz-box">
+    <h2 id="quizTitle"></h2>
+    <div class="question-counter" id="questionCounter"></div>
+    <p id="question"></p>
+
+    <div class="answers" id="answers"></div>
+
+    <div class="timer">⏱ Tiempo restante: <span id="timer">15</span>s</div>
+  </div>
+</section>
+
+<div class="success-modal" id="infoModal">
+  <div class="success-content">
+    <h2 id="infoTitle"></h2>
+    <p id="infoText"></p>
+    <button onclick="closeInfoModal()">Cerrar</button>
+  </div>
+</div>
+
+<div class="success-modal" id="countryCompleteModal">
+  <div class="success-content">
+    <h2>🎉 País completado</h2>
+
+    <p>
+      Has conseguido una pieza del pasaporte europeo.
+    </p>
+
+    <p>
+      💰 Recompensa: +30 monedas
+    </p>
+
+    <button onclick="closeCountryModal()">Continuar</button>
+  </div>
+</div>
+
+<!-- GAME OVER -->
+<section id="gameover" class="screen">
+  <div class="victory">💀</div>
+  <h1>Game Over</h1>
+  <p>
+    Te has quedado sin monedas y has perdido tu pasaporte en Europa.
+    No has conseguido llegar a Bruselas a tiempo.
+  </p>
+
+  <button onclick="restartGame()">Volver a empezar</button>
+</section>
+
+<!-- VICTORIA -->
+<section id="victory" class="screen">
+  <div class="victory">🏆</div>
+  <h1>¡Has recuperado el pasaporte!</h1>
+  <p>
+    Has llegado a Bruselas y completado tu aventura europea.
+    ¡Feliz Día de Europa!
+  </p>
+
+  <div class="passport" id="passportDisplay"></div>
+
+  <button onclick="location.reload()">Jugar otra vez</button>
+</section>
+
+<script>
+
+  let money = 50;
+  let pieces = 0;
+  let visited = 0;
+  let currentTimer;
+  let timeLeft = 15;
+
+  const completedCountries = [];
+
+  const quizzes = {
+    france: {
+      title: 'Francia 🇫🇷',
+      questions: [
+        {
+          question: '¿Qué monumento famoso se encuentra en París?',
+          answers: ['Big Ben', 'Torre Eiffel', 'Coliseo', 'Atomium'],
+          correct: 'Torre Eiffel'
+        },
+        {
+          question: '¿Cuál es la capital de Francia?',
+          answers: ['Lyon', 'Marsella', 'París', 'Niza'],
+          correct: 'París'
+        },
+        {
+          question: '¿Qué río atraviesa París?',
+          answers: ['Danubio', 'Sena', 'Támesis', 'Rin'],
+          correct: 'Sena'
+        }
+      ]
+    },
+
+    italy: {
+      title: 'Italia 🇮🇹',
+      questions: [
+        {
+          question: '¿Qué ciudad italiana es famosa por sus canales?',
+          answers: ['Roma', 'Milán', 'Venecia', 'Turín'],
+          correct: 'Venecia'
+        },
+        {
+          question: '¿Qué artista pintó la Mona Lisa?',
+          answers: ['Miguel Ángel', 'Picasso', 'Leonardo da Vinci', 'Dalí'],
+          correct: 'Leonardo da Vinci'
+        },
+        {
+          question: '¿Qué antiguo imperio tuvo su capital en Roma?',
+          answers: ['Imperio Romano', 'Imperio Griego', 'Imperio Mongol', 'Imperio Persa'],
+          correct: 'Imperio Romano'
+        }
+      ]
+    },
+
+    germany: {
+      title: 'Alemania 🇩🇪',
+      questions: [
+        {
+          question: '¿Qué científico alemán desarrolló la teoría de la relatividad?',
+          answers: ['Newton', 'Einstein', 'Tesla', 'Darwin'],
+          correct: 'Einstein'
+        },
+        {
+          question: '¿Qué ciudad estuvo dividida por un muro durante la Guerra Fría?',
+          answers: ['Hamburgo', 'Múnich', 'Berlín', 'Colonia'],
+          correct: 'Berlín'
+        },
+        {
+          question: '¿Cuál es la capital de Alemania?',
+          answers: ['Hamburgo', 'Berlín', 'Múnich', 'Frankfurt'],
+          correct: 'Berlín'
+        }
+      ]
+    },
+
+    spain: {
+      title: 'España 🇪🇸',
+      questions: [
+        {
+          question: '¿Qué arquitecto diseñó la Sagrada Familia?',
+          answers: ['Dalí', 'Gaudí', 'Picasso', 'Velázquez'],
+          correct: 'Gaudí'
+        },
+        {
+          question: '¿Cuál es la capital de España?',
+          answers: ['Barcelona', 'Sevilla', 'Madrid', 'Valencia'],
+          correct: 'Madrid'
+        },
+        {
+          question: '¿Qué escritor español creó Don Quijote?',
+          answers: ['Cervantes', 'Lorca', 'Velázquez', 'Goya'],
+          correct: 'Cervantes'
+        }
+      ]
+    },
+
+    belgium: {
+      title: 'Bélgica 🇧🇪',
+      questions: [
+        {
+          question: '¿Qué ciudad es considerada la capital de la Unión Europea?',
+          answers: ['Brujas', 'Bruselas', 'Amberes', 'Lieja'],
+          correct: 'Bruselas'
+        },
+        {
+          question: '¿Qué producto belga es famoso mundialmente?',
+          answers: ['Chocolate', 'Pizza', 'Paella', 'Sushi'],
+          correct: 'Chocolate'
+        },
+        {
+          question: '¿Qué edificio famoso de Bruselas representa a Bélgica?',
+          answers: ['Big Ben', 'Atomium', 'Coliseo', 'Torre Eiffel'],
+          correct: 'Atomium'
+        }
+      ]
+    }
+  };
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(screen => {
+      screen.classList.remove('active');
+    });
+
+    document.getElementById(id).classList.add('active');
+  }
+
+  function showInstructions() {
+    document.getElementById('instructionsModal').style.display = 'flex';
+  }
+
+  function closeInstructions() {
+    document.getElementById('instructionsModal').style.display = 'none';
+  }
+
+  let currentCountry = '';
+  let currentQuestionIndex = 0;
+  let mistakes = 0;
+
+  function startQuiz(country) {
+
+    if (completedCountries.includes(country)) {
+      showInfoModal('🌍 País ya completado', 'Ya has conseguido la pieza del pasaporte de este país.');
+      return;
+    }
+
+    currentCountry = country;
+    currentQuestionIndex = 0;
+
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+
+    const quiz = quizzes[currentCountry];
+    const currentQuestion = quiz.questions[currentQuestionIndex];
+
+    showScreen('quiz');
+
+    document.getElementById('quizTitle').innerText = quiz.title;
+    document.getElementById('question').innerText = currentQuestion.question;
+
+    document.getElementById('questionCounter').innerText =
+      `Pregunta ${currentQuestionIndex + 1} de ${quiz.questions.length}`;
+
+    const answersDiv = document.getElementById('answers');
+    answersDiv.innerHTML = '';
+
+    currentQuestion.answers.forEach(answer => {
+      const btn = document.createElement('button');
+      btn.innerText = answer;
+
+      btn.onclick = () => checkAnswer(btn, answer, currentQuestion.correct);
+
+      answersDiv.appendChild(btn);
+    });
+
+    startTimer();
+  }
+
+  function startTimer() {
+
+    clearInterval(currentTimer);
+
+    timeLeft = 15;
+    document.getElementById('timer').innerText = timeLeft;
+
+    currentTimer = setInterval(() => {
+
+      timeLeft--;
+      document.getElementById('timer').innerText = timeLeft;
+
+      if (timeLeft <= 0) {
+        clearInterval(currentTimer);
+        showInfoModal('⏰ Tiempo agotado', 'Se acabó el tiempo y has vuelto al mapa.');
+        showScreen('map');
+      }
+
+    }, 1000);
+  }
+
+  function checkAnswer(button, answer, correct) {
+
+    clearInterval(currentTimer);
+
+    const allButtons = document.querySelectorAll('#answers button');
+
+    allButtons.forEach(btn => btn.disabled = true);
+
+    if (answer === correct) {
+
+      button.classList.add('correct');
+      button.innerHTML += ' ✅';
+
+      setTimeout(() => {
+
+        currentQuestionIndex++;
+
+        if (currentQuestionIndex >= quizzes[currentCountry].questions.length) {
+
+          showCountryCompleteModal();
+
+          pieces++;
+          visited++;
+          money += 30;
+
+          completedCountries.push(currentCountry);
+
+          updateHUD();
+          updateProgress();
+          saveGame();
+
+          if (pieces >= 5) {
+            showVictory();
+          } else {
+            showCountryCompleteModal();
+          }
+
+        } else {
+          loadQuestion();
+        }
+
+      }, 1200);
+
+    } else {
+
+      button.classList.add('wrong');
+      button.innerHTML += ' ❌';
+
+      mistakes++;
+      money -= 15;
+
+      updateHUD();
+
+      if (money <= 0) {
+        setTimeout(() => {
+          showGameOver();
+        }, 1500);
+      }
+
+      const penalty = document.createElement('div');
+      penalty.classList.add('penalty-box');
+      penalty.innerHTML = `⚠ Penalización: Has perdido 15 monedas por responder incorrectamente.`;
+
+      document.querySelector('.quiz-box').appendChild(penalty);
+
+      allButtons.forEach(btn => {
+        if (btn.innerText.includes(correct)) {
+          btn.classList.add('correct');
+          btn.innerHTML += ' ✅';
+        }
+      });
+
+      setTimeout(() => {
+        penalty.remove();
+        showScreen('map');
+      }, 2000);
+    }
+  }
+
+  function updateHUD() {
+    document.getElementById('money').innerText = money;
+    document.getElementById('pieces').innerText = pieces;
+    document.getElementById('visited').innerText = visited;
+  }
+
+  function updateProgress() {
+    const progress = (pieces / 5) * 100;
+    document.getElementById('progressBar').style.width = progress + '%';
+  }
+
+  function showInfoModal(title, text) {
+    document.getElementById('infoTitle').innerText = title;
+    document.getElementById('infoText').innerText = text;
+    document.getElementById('infoModal').style.display = 'flex';
+  }
+
+  function closeInfoModal() {
+    document.getElementById('infoModal').style.display = 'none';
+  }
+
+  function showCountryCompleteModal() {
+    document.getElementById('countryCompleteModal').style.display = 'flex';
+  }
+
+  function closeCountryModal() {
+    document.getElementById('countryCompleteModal').style.display = 'none';
+    showScreen('map');
+  }
+
+  function showGameOver() {
+
+    localStorage.removeItem('escapeEuropaSave');
+    showScreen('gameover');
+  }
+
+  function restartGame() {
+    localStorage.removeItem('escapeEuropaSave');
+    location.reload();
+  }
+
+  function showVictory() {
+
+    showInfoModal('🏆 ¡Has ganado!', 'Has recuperado todas las piezas del pasaporte y completado tu aventura por Europa.');
+
+    setTimeout(() => {
+      showScreen('victory');
+    }, 1200);
+
+    const display = document.getElementById('passportDisplay');
+    display.innerHTML = '';
+
+    for (let i = 1; i <= 5; i++) {
+      const piece = document.createElement('div');
+      piece.classList.add('piece');
+      piece.innerText = i;
+      display.appendChild(piece);
+    }
+  }
+
+  function saveGame() {
+    const gameData = {
+      money,
+      pieces,
+      visited,
+      completedCountries
+    };
+
+    localStorage.setItem('escapeEuropaSave', JSON.stringify(gameData));
+  }
+
+  function loadGame() {
+
+    const save = localStorage.getItem('escapeEuropaSave');
+
+    if (save) {
+
+      const data = JSON.parse(save);
+
+      money = data.money;
+      pieces = data.pieces;
+      visited = data.visited;
+
+      data.completedCountries.forEach(c => completedCountries.push(c));
+
+      updateHUD();
+      updateProgress();
+    }
+  }
+
+  loadGame();
+
+</script>
+
+</body>
+</html>
